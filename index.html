@@ -3,200 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZenFlow · 静流冥想</title>
+    <title>ZenFlow 5.0 · 静流冥想</title>
     <style>
         :root {
-            --bg-top: #1a2a6c;
-            --bg-mid: #b21f1f;
-            --bg-bottom: #fdbb2d;
-            --glass: rgba(255, 255, 255, 0.1);
-            --accent: #e0e0e0;
+            --primary: #a8dadc;
+            --glass: rgba(255, 255, 255, 0.15);
+            --text: #ffffff;
+            --accent: #4facfe;
         }
 
         body {
             margin: 0; padding: 0;
-            font-family: 'PingFang SC', sans-serif;
-            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* 深度治愈蓝 */
-            color: white; min-height: 100vh;
+            font-family: 'PingFang SC', 'STKaiti', serif;
+            background: #0b0e14;
+            color: var(--text);
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* 顶部欢迎语 */
-        header { padding: 40px 20px; text-align: left; }
-        header h1 { font-size: 1.8rem; font-weight: 300; margin: 0; letter-spacing: 2px; }
-        header p { opacity: 0.6; font-size: 0.9rem; margin-top: 10px; }
-
-        .container { padding: 0 20px 100px; }
-
-        /* 核心呼吸引导器 */
-        .breath-guide {
-            height: 200px; display: flex; align-items: center; justify-content: center;
-            margin: 20px 0; position: relative;
+        /* 动态极光背景 */
+        .aurora-bg {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(125deg, #0f2027, #203a43, #2c5364, #0b0e11);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            z-index: -1;
         }
-        .breath-circle {
-            width: 100px; height: 100px;
-            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 50%;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+
+        /* 顶部状态栏 */
+        header { padding: 30px 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .user-stat h1 { font-size: 1.6rem; margin: 0; font-weight: 300; letter-spacing: 1px; }
+        .streak-badge { background: var(--glass); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* 核心呼吸引导 */
+        .zen-focus {
+            height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--glass); border-radius: 30px; backdrop-filter: blur(20px);
+            margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .breathe-circle {
+            width: 80px; height: 80px;
+            background: white; border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255,255,255,0.4);
             animation: breathe 8s infinite ease-in-out;
         }
         @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(2); opacity: 0.8; }
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(2.2); opacity: 0.8; }
         }
 
-        /* 成长计划卡片 */
-        .plan-card {
-            background: var(--glass); backdrop-filter: blur(10px);
-            border-radius: 20px; padding: 20px; margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+        /* 类别滑动栏 */
+        .category-nav {
+            display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px;
+            scrollbar-width: none;
         }
-        .plan-title { font-size: 1.1rem; margin-bottom: 15px; display: flex; justify-content: space-between; }
-        .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #4facfe; width: 30%; transition: 1s; }
-
-        /* 分类网格 */
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .cat-item {
-            aspect-ratio: 1/1; border-radius: 15px; padding: 15px;
-            display: flex; flex-direction: column; justify-content: flex-end;
-            background-size: cover; background-position: center;
-            position: relative; overflow: hidden;
+        .category-nav::-webkit-scrollbar { display: none; }
+        .nav-item {
+            flex: 0 0 auto; padding: 8px 20px; border-radius: 20px;
+            background: var(--glass); font-size: 0.9rem; transition: 0.3s;
         }
-        .cat-item::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
-        .cat-item span { position: relative; font-size: 1rem; font-weight: bold; }
+        .nav-item.active { background: white; color: black; }
 
-        /* 播放器面板 */
-        .player-overlay {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
-            padding: 20px; border-top-radius: 25px;
-            transform: translateY(100%); transition: 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-            z-index: 1000;
+        /* 冥想卡片列表 */
+        .meditation-list { display: grid; gap: 20px; margin-top: 10px; }
+        .med-card {
+            display: flex; align-items: center; padding: 15px;
+            background: var(--glass); border-radius: 20px;
+            backdrop-filter: blur(10px); transition: 0.3s;
         }
-        .player-overlay.active { transform: translateY(0); }
+        .med-card:active { transform: scale(0.98); }
+        .med-thumb { width: 60px; height: 60px; border-radius: 12px; margin-right: 15px; object-fit: cover; }
+        .med-info { flex: 1; }
+        .med-info h4 { margin: 0; font-size: 1rem; }
+        .med-info p { margin: 5px 0 0; font-size: 0.8rem; opacity: 0.6; }
 
-        .play-controls { display: flex; align-items: center; justify-content: space-around; margin-top: 20px; }
-        .play-btn { width: 60px; height: 60px; border-radius: 50%; background: white; color: black; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        /* 白噪音混音台 */
+        .mixer-panel {
+            margin-top: 30px; background: var(--glass); border-radius: 25px; padding: 20px;
+        }
+        .mixer-title { font-size: 0.9rem; margin-bottom: 15px; opacity: 0.8; }
+        .mixer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .mixer-btn {
+            padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.05);
+            text-align: center; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent;
+        }
+        .mixer-btn.active { border-color: var(--primary); background: rgba(255,255,255,0.15); }
 
-        .close-player { position: absolute; top: 10px; right: 20px; font-size: 24px; opacity: 0.5; }
+        /* 全屏播放器 */
+        .full-player {
+            position: fixed; inset: 0; background: #000; z-index: 2000;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; text-align: center;
+        }
+        .player-active { display: flex; animation: slideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .close-player { position: absolute; top: 40px; left: 30px; font-size: 1.5rem; }
+        .player-art { width: 250px; height: 250px; border-radius: 40px; margin-bottom: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .controls { display: flex; align-items: center; gap: 40px; margin-top: 50px; }
+        .play-main { width: 80px; height: 80px; background: white; border-radius: 50%; color: black; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1 id="greeting">下午好，修行者</h1>
-    <p>“流水不争先，争的是滔滔不绝。”</p>
-</header>
+<div class="aurora-bg"></div>
 
 <div class="container">
-    <!-- 呼吸引导 -->
-    <div class="breath-guide">
-        <div class="breath-circle"></div>
-        <div style="position:absolute; font-size:0.8rem; opacity:0.8;">随圆屏吸纳</div>
+    <header>
+        <div class="user-stat">
+            <h1 id="greeting">清晨好，修行者</h1>
+            <p>已在静流中度过 <span id="total-min">42</span> 分钟</p>
+        </div>
+        <div class="streak-badge">已连击 5 天</div>
+    </header>
+
+    <div class="zen-focus">
+        <div class="breathe-circle"></div>
+        <p style="margin-top: 30px; font-size: 0.9rem; letter-spacing: 4px; opacity: 0.8;">呼吸 · 定心</p>
     </div>
 
-    <!-- 个人计划 -->
-    <div class="plan-card">
-        <div class="plan-title">
-            <span>7天进阶计划 · 第3天</span>
-            <small>已坚持 12 分钟</small>
-        </div>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-        <button onclick="playAudio('觉知呼吸', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')" 
-                style="margin-top:15px; width:100%; padding:12px; border-radius:10px; border:none; background:#fff; color:#000; font-weight:bold;">
-            继续今日课程
-        </button>
+    <div class="category-nav">
+        <div class="nav-item active" onclick="filterMed('all')">精选</div>
+        <div class="nav-item" onclick="filterMed('sleep')">睡眠</div>
+        <div class="nav-item" onclick="filterMed('stress')">解压</div>
+        <div class="nav-item" onclick="filterMed('focus')">专注</div>
+        <div class="nav-item" onclick="filterMed('spirit')">灵性</div>
     </div>
 
-    <!-- 冥想类目 -->
-    <h3>探索分类</h3>
-    <div class="category-grid">
-        <div class="cat-item" style="background-image:url('https://images.unsplash.com/photo-1511295742364-9119556d73b7?auto=format&fit=crop&w=400')" onclick="loadCategory('sleep')">
-            <span>深层睡眠</span>
-        </div>
-        <div class="cat-item" style="background-image:url('https://images.unsplash.com/photo-1499209974431-9dac3adaf471?auto=format&fit=crop&w=400')" onclick="loadCategory('focus')">
-            <span>专注提效</span>
-        </div>
-        <div class="cat-item" style="background-image:url('https://images.unsplash.com/photo-1518241353349-9b57503855f1?auto=format&fit=crop&w=400')" onclick="loadCategory('anxiety')">
-            <span>缓解焦虑</span>
-        </div>
-        <div class="cat-item" style="background-image:url('https://images.unsplash.com/photo-1444464666168-49d633b867ad?auto=format&fit=crop&w=400')" onclick="loadCategory('nature')">
-            <span>自然音效</span>
+    <div class="meditation-list" id="med-list">
+        <!-- 列表由 JS 动态生成 -->
+    </div>
+
+    <div class="mixer-panel">
+        <div class="mixer-title">环境白噪音叠加</div>
+        <div class="mixer-grid">
+            <div class="mixer-btn" onclick="toggleAmbience('rain', this)">🌧️ 细雨</div>
+            <div class="mixer-btn" onclick="toggleAmbience('fire', this)">🔥 篝火</div>
+            <div class="mixer-btn" onclick="toggleAmbience('wave', this)">🌊 海浪</div>
         </div>
     </div>
 </div>
 
-<!-- 全局播放器 -->
-<div class="player-overlay" id="player">
-    <div class="close-player" onclick="togglePlayer(false)">×</div>
-    <div style="text-align:center;">
-        <h2 id="current-title">冥想曲目</h2>
-        <p id="current-cat" style="opacity:0.6;">计划推演中</p>
+<!-- 全屏播放器 -->
+<div class="full-player" id="fullPlayer">
+    <div class="close-player" onclick="closePlayer()">✕</div>
+    <img src="" id="player-img" class="player-art">
+    <h2 id="player-title" style="font-size: 1.8rem; margin: 0;"></h2>
+    <p id="player-desc" style="opacity: 0.6; margin-top: 10px;"></p>
+    
+    <div class="controls">
+        <span style="font-size: 1.5rem;">⏮</span>
+        <div class="play-main" onclick="toggleMainPlay()" id="mainPlayBtn">⏸</div>
+        <span style="font-size: 1.5rem;">⏭</span>
     </div>
-    <div class="play-controls">
-        <div style="font-size:1.5rem;">⏮</div>
-        <div class="play-btn" id="play-trigger" onclick="toggleAudio()">▶</div>
-        <div style="font-size:1.5rem;">⏭</div>
-    </div>
-    <audio id="audio-engine"></audio>
 </div>
+
+<!-- 音频引擎 -->
+<audio id="main-audio" loop></audio>
+<audio id="ambience-audio" loop></audio>
 
 <script>
-    // 维度 5：动态音频库（以后你只需要在这里增加数据）
-    const audioLibrary = {
-        sleep: [
-            {title: "林间细雨", url: "https://actions.google.com/sounds/v1/water/rain_on_roof.ogg"},
-            {title: "深海波动", url: "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock.ogg"}
-        ],
-        focus: [
-            {title: "白噪音工作坊", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"}
-        ]
-        // 更多音频...
+    // 5.0 内容库：大量扩展音乐与类目
+    const library = [
+        { id: 1, cat: 'sleep', title: '4-7-8 深度助眠', desc: '利用呼吸法快速进入Delta波状态', thumb: 'https://images.unsplash.com/photo-1511295742364-9119556d73b7?w=200', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+        { id: 2, cat: 'stress', title: '正念减压 · 身体扫描', desc: '觉察每一寸肌肉的紧张与释放', thumb: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=200', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+        { id: 3, cat: 'focus', title: '高效心流：阿尔法波', desc: '屏蔽外界干扰，进入深度办公', thumb: 'https://images.unsplash.com/photo-1499209974431-9dac3adaf471?w=200', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
+        { id: 4, cat: 'spirit', title: '慈悲心修行', desc: '连接内在的善意与平和', thumb: 'https://images.unsplash.com/photo-1528715471579-d1bcf0ba5e83?w=200', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
+        { id: 5, cat: 'nature', title: '西藏颂钵疗愈', desc: '共振清理身心负能量', thumb: 'https://images.unsplash.com/photo-1514533212735-5df27d970db0?w=200', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' }
+    ];
+
+    const ambData = {
+        rain: "https://actions.google.com/sounds/v1/water/rain_on_roof.ogg",
+        fire: "https://actions.google.com/sounds/v1/ambiences/fireplace.ogg",
+        wave: "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock.ogg"
     };
 
-    let isPlaying = false;
-    const audio = document.getElementById('audio-engine');
+    const mainAudio = document.getElementById('main-audio');
+    const ambAudio = document.getElementById('ambience-audio');
+    let currentAmb = null;
 
-    function togglePlayer(show) {
-        document.getElementById('player').classList.toggle('active', show);
+    // 初始化渲染
+    function renderList(data) {
+        const list = document.getElementById('med-list');
+        list.innerHTML = data.map(item => `
+            <div class="med-card" onclick="openPlayer(${item.id})">
+                <img src="${item.thumb}" class="med-thumb">
+                <div class="med-info">
+                    <h4>${item.title}</h4>
+                    <p>${item.desc}</p>
+                </div>
+                <div style="font-size: 1.2rem; opacity: 0.3;">▶</div>
+            </div>
+        `).join('');
     }
 
-    function playAudio(title, url) {
-        document.getElementById('current-title').innerText = title;
-        audio.src = url;
-        audio.play();
-        isPlaying = true;
-        document.getElementById('play-trigger').innerText = "⏸";
-        togglePlayer(true);
+    function filterMed(cat) {
+        const items = document.querySelectorAll('.nav-item');
+        items.forEach(i => i.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if(cat === 'all') renderList(library);
+        else renderList(library.filter(i => i.cat === cat));
     }
 
-    function toggleAudio() {
-        if(isPlaying) {
-            audio.pause();
-            document.getElementById('play-trigger').innerText = "▶";
+    function openPlayer(id) {
+        const item = library.find(i => i.id === id);
+        document.getElementById('player-title').innerText = item.title;
+        document.getElementById('player-desc').innerText = item.desc;
+        document.getElementById('player-img').src = item.thumb;
+        
+        mainAudio.src = item.url;
+        mainAudio.play();
+        
+        document.getElementById('fullPlayer').classList.add('player-active');
+        document.getElementById('mainPlayBtn').innerText = "⏸";
+        
+        // 记录统计数据
+        updateStats();
+    }
+
+    function closePlayer() {
+        document.getElementById('fullPlayer').classList.remove('player-active');
+    }
+
+    function toggleMainPlay() {
+        if(mainAudio.paused) {
+            mainAudio.play();
+            document.getElementById('mainPlayBtn').innerText = "⏸";
         } else {
-            audio.play();
-            document.getElementById('play-trigger').innerText = "⏸";
+            mainAudio.pause();
+            document.getElementById('mainPlayBtn').innerText = "▶";
         }
-        isPlaying = !isPlaying;
     }
 
-    function loadCategory(id) {
-        const item = audioLibrary[id] ? audioLibrary[id][0] : null;
-        if(item) {
-            playAudio(item.title, item.url);
-            document.getElementById('current-cat').innerText = "分类推演播放";
+    function toggleAmbience(type, btn) {
+        if(currentAmb === type) {
+            ambAudio.pause();
+            currentAmb = null;
+            btn.classList.remove('active');
         } else {
-            alert("该类目新音频正在录制中，敬请期待...");
+            document.querySelectorAll('.mixer-btn').forEach(b => b.classList.remove('active'));
+            ambAudio.src = ambData[type];
+            ambAudio.play();
+            currentAmb = type;
+            btn.classList.add('active');
         }
     }
 
-    // 初始化：根据时间更新欢迎语
+    function updateStats() {
+        let mins = parseInt(localStorage.getItem('zen_mins') || 42);
+        mins += 5; // 模拟增加
+        localStorage.setItem('zen_mins', mins);
+        document.getElementById('total-min').innerText = mins;
+    }
+
+    // 自动欢迎语
     const hour = new Date().getHours();
-    const greet = hour < 12 ? "早上好" : (hour < 18 ? "下午好" : "晚上好");
+    const greet = hour < 10 ? "早安" : (hour < 18 ? "午后好" : "晚上好");
     document.getElementById('greeting').innerText = `${greet}，修行者`;
-</script>
 
+    renderList(library);
+</script>
 </body>
 </html>
