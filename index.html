@@ -3,33 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZenFlow 6.0 · 播客智联</title>
+    <title>ZenFlow 7.0 · 智能全域冥想</title>
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.12); --accent: #81ecec; }
-        body { margin: 0; padding: 0; font-family: sans-serif; background: #0b0e14; color: white; min-height: 100vh; }
-        .aurora { position: fixed; inset: 0; background: linear-gradient(125deg, #0f2027, #2c5364); z-index: -1; }
+        :root { --accent: #81ecec; --bg: #0a0c10; --card: rgba(255,255,255,0.08); }
+        body { margin: 0; padding: 0; font-family: -apple-system, 'STKaiti', serif; background: var(--bg); color: white; -webkit-font-smoothing: antialiased; }
+        .aurora { position: fixed; inset: 0; background: radial-gradient(circle at 50% -20%, #1e3799, #0a0c10); z-index: -1; }
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
-        
-        header { padding: 40px 0 20px; text-align: center; }
-        .breathe-btn { width: 120px; height: 120px; border-radius: 50%; background: var(--glass); border: 1px solid rgba(255,255,255,0.2); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; animation: pulse 8s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.5); opacity: 1; } }
 
-        /* 播客动态列表 */
-        .section-title { font-size: 1.1rem; margin: 30px 0 15px; border-left: 4px solid var(--accent); padding-left: 10px; }
-        .podcast-list { display: grid; gap: 15px; }
-        .pod-card { background: var(--glass); border-radius: 18px; padding: 15px; display: flex; align-items: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
-        .pod-img { width: 50px; height: 50px; border-radius: 10px; margin-right: 15px; }
-        .pod-info { flex: 1; }
-        .pod-info h4 { margin: 0; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-        .pod-info p { margin: 5px 0 0; font-size: 0.75rem; opacity: 0.5; }
-        .play-icon { font-size: 1.2rem; color: var(--accent); }
+        /* 顶部成长计划 */
+        .growth-card { background: linear-gradient(135deg, #0984e3, #6c5ce7); border-radius: 20px; padding: 20px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; opacity: 0.9; }
+        .bar-bg { height: 6px; background: rgba(0,0,0,0.2); border-radius: 3px; overflow: hidden; }
+        .bar-fill { height: 100%; background: white; width: 35%; transition: 1s; }
 
-        /* 全屏播放器 */
-        .player-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(255,255,255,0.95); color: #000; padding: 12px 20px; border-radius: 20px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .player-bar.active { display: flex; animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* 类目导航 */
+        .nav-tabs { display: flex; overflow-x: auto; gap: 12px; padding: 25px 0; scrollbar-width: none; }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .tab { flex: 0 0 auto; padding: 10px 20px; border-radius: 25px; background: var(--card); font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .tab.active { background: white; color: black; border-color: white; font-weight: bold; }
 
-        .loading-text { text-align: center; opacity: 0.5; padding: 20px; font-size: 0.8rem; }
+        /* 动态音频列表 */
+        .list-container { display: grid; gap: 15px; min-height: 300px; }
+        .audio-card { background: var(--card); border-radius: 18px; padding: 15px; display: flex; align-items: center; backdrop-filter: blur(10px); animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .audio-img { width: 60px; height: 60px; border-radius: 12px; margin-right: 15px; object-fit: cover; background: #222; }
+        .audio-info { flex: 1; }
+        .audio-info h4 { margin: 0; font-size: 0.95rem; line-height: 1.3; }
+        .audio-info p { margin: 5px 0 0; font-size: 0.7rem; color: var(--accent); }
+
+        /* 全屏播放控制条 */
+        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.98); color: #111; padding: 15px 25px; border-radius: 25px 25px 0 0; display: none; transform: translateY(100%); transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); box-shadow: 0 -10px 30px rgba(0,0,0,0.5); z-index: 1000; }
+        .player-bar.active { display: block; transform: translateY(0); }
+        .play-flex { display: flex; align-items: center; gap: 15px; }
+        .loading-text { text-align: center; padding: 50px; opacity: 0.5; font-size: 0.8rem; letter-spacing: 2px; }
+
+        /* 呼吸按钮 */
+        .breath-orb { width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, var(--accent), #0984e3); margin: 0 auto; animation: orbBreathe 4s infinite ease-in-out; }
+        @keyframes orbBreathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -37,101 +47,121 @@
 <div class="aurora"></div>
 
 <div class="container">
-    <header>
-        <div class="breathe-btn"><span>呼 吸</span></div>
-        <h2 style="font-weight: 300;">大师引导课</h2>
-        <p style="opacity: 0.6; font-size: 0.8rem;">—— 每日自动更新修行内容 ——</p>
-    </header>
+    <div class="breath-orb" style="margin-top: 20px;"></div>
+    
+    <!-- 维度：成长计划 -->
+    <div class="growth-card">
+        <div class="progress-info">
+            <span>21天觉知计划 · 第 8 天</span>
+            <span>进度 35%</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill"></div></div>
+        <p style="margin: 15px 0 0; font-size: 0.75rem; opacity: 0.8;">今日目标：听完一段 10 分钟的“清晨能量”</p>
+    </div>
 
-    <div class="section-title">今日推荐 · 正念播客</div>
-    <div id="loading" class="loading-text">📡 正在连接全球冥想基站...</div>
-    <div class="podcast-list" id="pod-list">
-        <!-- 播客内容将自动填充 -->
+    <!-- 维度：多类目可选 -->
+    <div class="nav-tabs">
+        <div class="tab active" onclick="switchSource('latest', this)">✨ 最新推荐</div>
+        <div class="tab" onclick="switchSource('sleep', this)">🌙 深度睡眠</div>
+        <div class="tab" onclick="switchSource('calm', this)">🍃 焦虑缓解</div>
+        <div class="tab" onclick="switchSource('wisdom', this)">🧘 智慧修行</div>
+    </div>
+
+    <div id="list-status" class="loading-text">正在同步 2024 全球修行库...</div>
+    <div class="list-container" id="list"></div>
+</div>
+
+<div class="player-bar" id="player">
+    <div class="play-flex">
+        <div style="flex: 1; overflow: hidden;">
+            <div id="p-title" style="font-weight: bold; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">曲目加载中</div>
+            <div id="p-status" style="font-size: 0.7rem; color: #666;">准备绪</div>
+        </div>
+        <div onclick="toggleAudio()" id="playBtn" style="font-size: 2rem; cursor: pointer;">▶</div>
     </div>
 </div>
 
-<!-- 底部简易播放控制 -->
-<div class="player-bar" id="miniPlayer">
-    <div style="flex: 1; overflow: hidden;">
-        <div id="play-title" style="font-weight:bold; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">未在播放</div>
-        <div id="play-status" style="font-size:0.7rem; color:#666;">准备绪</div>
-    </div>
-    <div onclick="toggleAudio()" style="font-size: 1.5rem; margin-left: 15px;" id="playBtn">▶</div>
-</div>
-
-<audio id="audio-engine"></audio>
+<audio id="audio" preload="auto"></audio>
 
 <script>
-    // 你的播客 RSS 链接 (你可以随意更换)
-    const RSS_URL = "https://meditationminis.libsyn.com/rss"; // 这是一个国际顶级的冥想源
-    const API_KEY = ""; // rss2json 不需要 key 即可基础使用
+    // 维度：多类目活跃源（经过 2024 更新筛选）
+    const SOURCES = {
+        latest: "https://feed.xyzcdn.net/itpt8p5q0f37", // 活跃中文源
+        sleep: "https://sleepwithme.libsyn.com/rss",    // 全球最大睡眠源
+        calm: "https://meditationminis.libsyn.com/rss", // 极简减压
+        wisdom: "https://feeds.simplecast.com/54nAGp74" // 哲学智慧
+    };
 
-    const audioEngine = document.getElementById('audio-engine');
-    const playerBar = document.getElementById('miniPlayer');
+    const audio = document.getElementById('audio');
     let isPlaying = false;
 
-    // 核心函数：抓取并解析播客
-    async function fetchPodcasts() {
-        const fetchUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+    async function fetchList(category) {
+        const listEl = document.getElementById('list');
+        const statusEl = document.getElementById('list-status');
         
+        listEl.innerHTML = "";
+        statusEl.style.display = "block";
+        statusEl.innerText = "⚡ 正在加速加载音频流...";
+
+        const fetchUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(SOURCES[category])}&api_key=your_free_api_key_optional`;
+
         try {
-            const response = await fetch(fetchUrl);
-            const data = await response.json();
+            const res = await fetch(fetchUrl);
+            const data = await res.json();
             
             if (data.status === 'ok') {
-                document.getElementById('loading').style.display = 'none';
-                renderList(data.items);
-            } else {
-                throw new Error("API 返回错误");
+                statusEl.style.display = "none";
+                // 维度：排序算法 - 确保展示 2024 最新内容
+                const sortedItems = data.items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                render(sortedItems);
             }
         } catch (e) {
-            document.getElementById('loading').innerText = "❌ 信号丢失，请稍后再试";
+            statusEl.innerText = "❌ 访问超时，请尝试切换类目";
         }
     }
 
-    function renderList(items) {
-        const list = document.getElementById('pod-list');
-        list.innerHTML = items.slice(0, 10).map((item, index) => `
-            <div class="pod-card" onclick="playPod('${item.title.replace(/'/g, "\\'")}', '${item.enclosure.link}')">
-                <img src="${item.thumbnail || 'https://images.unsplash.com/photo-1518241353349-9b57503855f1?w=100'}" class="pod-img">
-                <div class="pod-info">
+    function render(items) {
+        const list = document.getElementById('list');
+        list.innerHTML = items.slice(0, 15).map(item => `
+            <div class="audio-card" onclick="playAudio('${item.title.replace(/'/g, "")}', '${item.enclosure.link}')">
+                <img src="${item.thumbnail || 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=120'}" class="audio-img">
+                <div class="audio-info">
                     <h4>${item.title}</h4>
-                    <p>${item.pubDate.split(' ')[0]} · 大师引导</p>
+                    <p>发布日期：${item.pubDate.split(' ')[0]}</p>
                 </div>
-                <div class="play-icon">▶</div>
+                <div style="color:var(--accent)">▶</div>
             </div>
         `).join('');
     }
 
-    function playPod(title, url) {
-        document.getElementById('play-title').innerText = title;
-        document.getElementById('play-status').innerText = "正在加载音频...";
+    function switchSource(cat, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        fetchList(cat);
+    }
+
+    function playAudio(title, url) {
+        document.getElementById('p-title').innerText = title;
+        document.getElementById('p-status').innerText = "⚡ 极速缓存中...";
         
-        audioEngine.src = url;
-        audioEngine.play();
+        audio.src = url;
+        audio.play();
         
-        playerBar.classList.add('active');
+        document.getElementById('player').classList.add('active');
         document.getElementById('playBtn').innerText = "⏸";
         isPlaying = true;
-        
-        audioEngine.onplaying = () => {
-            document.getElementById('play-status').innerText = "正在修行中...";
-        };
+
+        audio.onplaying = () => document.getElementById('p-status').innerText = "✨ 深度修行中";
     }
 
     function toggleAudio() {
-        if(isPlaying) {
-            audioEngine.pause();
-            document.getElementById('playBtn').innerText = "▶";
-        } else {
-            audioEngine.play();
-            document.getElementById('playBtn').innerText = "⏸";
-        }
+        if(isPlaying) { audio.pause(); document.getElementById('playBtn').innerText = "▶"; }
+        else { audio.play(); document.getElementById('playBtn').innerText = "⏸"; }
         isPlaying = !isPlaying;
     }
 
-    // 启动抓取
-    fetchPodcasts();
+    // 初始化加载最新
+    fetchList('latest');
 </script>
 </body>
 </html>
