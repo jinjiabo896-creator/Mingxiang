@@ -3,86 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZenFlow 8.0 · 传世旗舰</title>
+    <title>ZenFlow 9.0 · 真人语音引导</title>
     <style>
         :root {
-            --p1: #1a2a6c; --p2: #b21f1f; --p3: #fdbb2d;
-            --glass: rgba(255, 255, 255, 0.12);
-            --ink: #0b0e14;
+            --glass: rgba(255, 255, 255, 0.1);
+            --accent: #a8dadc;
         }
-
         body {
-            margin: 0; padding: 0; font-family: 'PingFang SC', system-ui, sans-serif;
-            background: var(--ink); color: white; min-height: 100vh; overflow-x: hidden;
+            margin: 0; padding: 0; font-family: -apple-system, "PingFang SC", sans-serif;
+            background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden;
         }
-
-        /* 沉浸式背景 */
         .aurora {
             position: fixed; inset: 0;
-            background: radial-gradient(circle at 50% -20%, #1e3799, #0b0e14);
+            background: radial-gradient(circle at 20% 30%, #1e293b 0%, #0f172a 100%);
             z-index: -1;
         }
+        .container { max-width: 500px; margin: 0 auto; padding: 40px 20px 100px; }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 40px 20px 120px; }
+        /* 状态看板 */
+        header { margin-bottom: 30px; }
+        .welcome h1 { font-size: 1.6rem; font-weight: 300; margin: 0; }
+        .welcome p { font-size: 0.85rem; opacity: 0.6; margin-top: 5px; }
 
-        /* 顶部成长仪表盘 */
-        header { margin-bottom: 40px; }
-        .stat-card {
-            background: var(--glass); border-radius: 24px; padding: 25px;
-            backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
+        /* 呼吸视觉中心 */
+        .breath-center {
+            height: 200px; display: flex; align-items: center; justify-content: center;
+            background: var(--glass); border-radius: 24px; margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .stat-main h1 { font-size: 1.5rem; margin: 0; font-weight: 400; }
-        .stat-main p { font-size: 0.8rem; opacity: 0.6; margin: 5px 0 0; }
-        .streak { text-align: right; color: #fdbb2d; font-weight: bold; }
-
-        /* 呼吸球 - 交互灵魂 */
-        .zen-orb-container {
-            height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px;
-        }
-        .zen-orb {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: white; box-shadow: 0 0 60px rgba(255,255,255,0.3);
-            animation: breathe 10s infinite ease-in-out;
+        .orb {
+            width: 80px; height: 80px; background: white; border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255,255,255,0.2);
+            animation: breathe 8s infinite ease-in-out;
         }
         @keyframes breathe {
             0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(2.2); opacity: 0.7; }
+            50% { transform: scale(1.8); opacity: 0.6; }
         }
 
-        /* 类目矩阵 */
-        .category-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;
+        /* 课程列表 */
+        .course-section h2 { font-size: 1.1rem; font-weight: 400; margin-bottom: 20px; opacity: 0.9; }
+        .course-list { display: grid; gap: 15px; }
+        .course-card {
+            background: var(--glass); border-radius: 20px; padding: 18px;
+            display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
         }
-        .cat-card {
-            background: var(--glass); border-radius: 20px; padding: 20px;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
-            position: relative; overflow: hidden;
-        }
-        .cat-card:active { transform: scale(0.95); }
-        .cat-card h3 { margin: 0; font-size: 1rem; }
-        .cat-card p { font-size: 0.7rem; opacity: 0.5; margin: 8px 0 0; }
-        .icon { position: absolute; right: -10px; bottom: -10px; font-size: 3rem; opacity: 0.1; }
+        .course-card:active { transform: scale(0.97); background: rgba(255,255,255,0.15); }
+        .course-icon { font-size: 1.5rem; margin-right: 15px; width: 40px; text-align: center; }
+        .course-info { flex: 1; }
+        .course-info h4 { margin: 0; font-size: 0.95rem; }
+        .course-info p { margin: 4px 0 0; font-size: 0.75rem; opacity: 0.5; }
+        .play-indicator { color: var(--accent); font-size: 0.8rem; }
 
-        /* 播放器核心 */
+        /* 底部沉浸播放器 */
         .player-panel {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(255,255,255,0.98); color: #000;
-            padding: 20px 30px; border-radius: 30px 30px 0 0;
+            background: rgba(255,255,255,0.95); color: #000;
+            padding: 20px 25px; border-radius: 24px 24px 0 0;
             display: none; transform: translateY(100%);
             transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
+            z-index: 1000; box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
         }
         .player-panel.active { display: block; transform: translateY(0); }
         .player-flex { display: flex; align-items: center; justify-content: space-between; }
-        .play-btn { width: 55px; height: 55px; background: #000; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-
-        /* 混音台 */
-        .mixer { margin-top: 40px; }
-        .mixer-title { font-size: 0.9rem; opacity: 0.6; margin-bottom: 15px; }
-        .mixer-chips { display: flex; gap: 10px; flex-wrap: wrap; }
-        .chip { padding: 10px 20px; border-radius: 20px; background: var(--glass); font-size: 0.8rem; border: 1px solid transparent; }
-        .chip.active { background: white; color: #000; }
+        .play-btn { width: 50px; height: 50px; background: #0f172a; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -90,128 +75,109 @@
 <div class="aurora"></div>
 
 <div class="container">
-    <header>
-        <div class="stat-card">
-            <div class="stat-main">
-                <h1 id="greet">午后好，修行者</h1>
-                <p>今日已冥想 <span id="daily-mins">0</span> 分钟</p>
-            </div>
-            <div class="streak">
-                <div style="font-size: 1.2rem;">🔥 1</div>
-                <div style="font-size: 0.6rem; opacity: 0.7;">连击天数</div>
-            </div>
-        </div>
+    <header class="welcome">
+        <h1 id="greet">修行者，你好</h1>
+        <p>今日修行计划：21天正念入门课程</p>
     </header>
 
-    <div class="zen-orb-container">
-        <div class="zen-orb"></div>
-        <div style="position:absolute; letter-spacing: 4px; font-size: 0.9rem; opacity: 0.5;">呼 · 吸</div>
+    <div class="breath-center">
+        <div class="orb"></div>
+        <div style="position:absolute; font-size: 0.8rem; opacity: 0.4; letter-spacing: 2px;">随圆屏吸纳</div>
     </div>
 
-    <h2 style="font-weight: 400; font-size: 1.1rem; margin-bottom: 20px;">选择你的修行维度</h2>
-    <div class="category-grid">
-        <div class="cat-card" onclick="play('深度睡眠', 'https://actions.google.com/sounds/v1/water/rain_on_roof.ogg')">
-            <h3>深度睡眠</h3>
-            <p>2024 精选助眠流</p>
-            <div class="icon">🌙</div>
-        </div>
-        <div class="cat-card" onclick="play('缓解焦虑', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')">
-            <h3>缓解焦虑</h3>
-            <p>专业正念引导</p>
-            <div class="icon">🍃</div>
-        </div>
-        <div class="cat-card" onclick="play('专注提效', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3')">
-            <h3>专注提效</h3>
-            <p>阿尔法波音频</p>
-            <div class="icon">🎯</div>
-        </div>
-        <div class="cat-card" onclick="play('晨起能量', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3')">
-            <h3>晨起能量</h3>
-            <p>开启高效的一天</p>
-            <div class="icon">☀️</div>
-        </div>
-    </div>
-
-    <div class="mixer">
-        <div class="mixer-title">叠加环境氛围音 (秒开)</div>
-        <div class="mixer-chips">
-            <div class="chip" onclick="mix('rain', this)">🌧️ 细雨</div>
-            <div class="chip" onclick="mix('fire', this)">🔥 篝火</div>
-            <div class="chip" onclick="mix('wave', this)">🌊 海浪</div>
+    <div class="course-section">
+        <h2>真人引导课程 · 2024版</h2>
+        <div class="course-list">
+            <!-- 课程 1：助眠 -->
+            <div class="course-card" onclick="play('5分钟快速入眠引导', '专业指导', 'https://www.uclahealth.org/sites/default/files/sections/marc/audio/01_Free_Guided_Meditations_English/Mindfulness-and-Sleep.mp3')">
+                <div class="course-icon">🌙</div>
+                <div class="course-info">
+                    <h4>5分钟快速入眠引导</h4>
+                    <p>真人语音 · 睡前全身扫描</p>
+                </div>
+                <div class="play-indicator">播放课程</div>
+            </div>
+            <!-- 课程 2：减压 -->
+            <div class="course-card" onclick="play('正念减压：呼吸觉察', '专业指导', 'https://www.uclahealth.org/sites/default/files/sections/marc/audio/01_Free_Guided_Meditations_English/Breath-Body-and-Sound-Meditation.mp3')">
+                <div class="course-icon">🍃</div>
+                <div class="course-info">
+                    <h4>正念减压：呼吸觉察</h4>
+                    <p>真人语音 · 缓解当下焦虑</p>
+                </div>
+                <div class="play-indicator">播放课程</div>
+            </div>
+            <!-- 课程 3：专注 -->
+            <div class="course-card" onclick="play('5分钟快速静心(中文)', '冥想大师', 'https://feed.xyzcdn.net/itpt8p5q0f37/1628178877_056637.mp3')">
+                <div class="course-icon">🎯</div>
+                <div class="course-info">
+                    <h4>5分钟快速静心 (中文)</h4>
+                    <p>真人语音 · 适合办公间隙</p>
+                </div>
+                <div class="play-indicator">播放课程</div>
+            </div>
+            <!-- 课程 4：情绪 -->
+            <div class="course-card" onclick="play('慈悲心引导：自我疗愈', '专业指导', 'https://www.uclahealth.org/sites/default/files/sections/marc/audio/01_Free_Guided_Meditations_English/Loving-Kindness-Meditation.mp3')">
+                <div class="course-icon">💖</div>
+                <div class="course-info">
+                    <h4>慈悲心引导：自我疗愈</h4>
+                    <p>真人语音 · 提升内在能量</p>
+                </div>
+                <div class="play-indicator">播放课程</div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="player-panel" id="player">
     <div class="player-flex">
-        <div style="flex: 1; overflow: hidden; padding-right: 20px;">
-            <div id="p-title" style="font-weight: bold; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">未在播放</div>
-            <div style="font-size: 0.75rem; color: #666; margin-top: 4px;">正在为您提供高品质流媒体传输...</div>
+        <div style="flex: 1; padding-right: 15px;">
+            <div id="p-title" style="font-weight: bold; font-size: 1rem;">课程名</div>
+            <div id="p-teacher" style="font-size: 0.75rem; color: #666; margin-top: 4px;">真人引导老师：专业指导</div>
         </div>
-        <div class="play-btn" onclick="toggleMain()" id="p-btn">⏸</div>
+        <div class="play-btn" onclick="togglePlay()" id="p-btn">⏸</div>
+    </div>
+    <!-- 进度条 -->
+    <div style="height: 3px; background: #ddd; margin-top: 15px; border-radius: 2px;">
+        <div id="p-bar" style="height: 100%; background: #0f172a; width: 0%;"></div>
     </div>
 </div>
 
-<audio id="audio-main" loop></audio>
-<audio id="audio-mix" loop></audio>
+<audio id="audio-main"></audio>
 
 <script>
-    // 逻辑自检：1. 存储 2. 状态控制 3. 极速加载
-    const main = document.getElementById('audio-main');
-    const mixer = document.getElementById('audio-mix');
-    let currentMix = null;
+    const audio = document.getElementById('audio-main');
+    const player = document.getElementById('player');
+    const pBtn = document.getElementById('p-btn');
+    const pBar = document.getElementById('p-bar');
 
-    // 维度：秒开控制
-    function play(title, url) {
+    function play(title, teacher, url) {
         document.getElementById('p-title').innerText = title;
-        document.getElementById('player').classList.add('active');
+        document.getElementById('p-teacher').innerText = "真人引导老师：" + teacher;
         
-        main.src = url;
-        main.load(); // 强制预加载
-        main.play();
-        document.getElementById('p-btn').innerText = "⏸";
+        audio.src = url;
+        audio.play().catch(e => {
+            alert("音频加载中，请稍后... 部分海外教育源需3-5秒响应。");
+        });
         
-        // 维度：数据持久化
-        updateData();
-    }
-
-    function toggleMain() {
-        if(main.paused) { main.play(); document.getElementById('p-btn').innerText = "⏸"; }
-        else { main.pause(); document.getElementById('p-btn').innerText = "▶"; }
-    }
-
-    function mix(type, el) {
-        const urls = {
-            rain: "https://actions.google.com/sounds/v1/water/rain_on_roof.ogg",
-            fire: "https://actions.google.com/sounds/v1/ambiences/fireplace.ogg",
-            wave: "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock.ogg"
+        player.classList.add('active');
+        pBtn.innerText = "⏸";
+        
+        // 进度监听
+        audio.ontimeupdate = () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            pBar.style.width = progress + "%";
         };
-
-        if(currentMix === type) {
-            mixer.pause();
-            currentMix = null;
-            el.classList.remove('active');
-        } else {
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            mixer.src = urls[type];
-            mixer.play();
-            currentMix = type;
-            el.classList.add('active');
-        }
     }
 
-    function updateData() {
-        let mins = parseInt(localStorage.getItem('zen_total') || 0);
-        mins += 1;
-        localStorage.setItem('zen_total', mins);
-        document.getElementById('daily-mins').innerText = mins;
+    function togglePlay() {
+        if(audio.paused) { audio.play(); pBtn.innerText = "⏸"; }
+        else { audio.pause(); pBtn.innerText = "▶"; }
     }
 
-    // 初始化界面
+    // 时间问候
     const hour = new Date().getHours();
     const greet = hour < 10 ? "早安" : (hour < 18 ? "午后好" : "晚上好");
     document.getElementById('greet').innerText = `${greet}，修行者`;
-    document.getElementById('daily-mins').innerText = localStorage.getItem('zen_total') || 0;
 </script>
 </body>
 </html>
