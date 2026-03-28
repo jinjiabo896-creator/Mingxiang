@@ -3,172 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZenFlow 20.0 · 冥想训练营</title>
+    <title>ZenFlow 21.0 · 逻辑音频闭环</title>
     <style>
-        :root { --bg: #000; --accent: #00d2ff; --card: rgba(255,255,255,0.05); }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
-        .container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        :root { --bg: #000; --accent: #00d2ff; --gold: #c5a059; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: sans-serif; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        .container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
-        /* 呼吸训练圆环 */
-        .breath-orb-wrap { position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center; margin-bottom: 50px; }
-        .orb-bg { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; }
-        .orb-main { 
-            width: 100px; height: 100px; background: radial-gradient(circle, #fff, var(--accent)); 
-            border-radius: 50%; box-shadow: 0 0 50px var(--accent);
-            transition: transform 4s ease-in-out; 
-        }
+        /* 呼吸球强化：增加光晕层 */
+        .breath-wrap { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
+        .glow { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); opacity: 0.1; transition: 4s ease-in-out; }
+        .orb { width: 80px; height: 80px; background: #fff; border-radius: 50%; box-shadow: 0 0 40px var(--accent); transition: transform 4s ease-in-out; z-index: 2; }
         
-        /* 训练文字提示 */
-        .instruction { font-size: 1.8rem; font-weight: 300; height: 40px; margin-bottom: 10px; color: var(--accent); }
-        .sub-instruction { font-size: 0.9rem; opacity: 0.5; margin-bottom: 40px; }
+        .cue-text { font-size: 2rem; font-weight: 200; color: var(--accent); min-height: 2.5rem; margin-bottom: 10px; transition: 0.5s; }
+        .sub-cue { font-size: 0.9rem; opacity: 0.4; letter-spacing: 2px; height: 1rem; }
 
-        /* 模式选择 */
-        .mode-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
-        .mode-card { background: var(--card); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; text-align: center; }
-        .mode-card h3 { margin: 0; font-size: 1rem; }
-        .mode-card p { font-size: 0.7rem; opacity: 0.5; margin: 5px 0 0; }
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; margin-top: 30px; }
+        .card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; border-radius: 20px; cursor: pointer; }
+        .card:active { background: var(--accent); color: #000; }
 
-        /* 播放状态 */
-        .training-overlay { position: fixed; inset: 0; background: #000; z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
-        .timer { font-family: monospace; font-size: 1.2rem; color: #666; margin-top: 20px; }
-        .btn-exit { margin-top: 50px; padding: 10px 30px; border-radius: 20px; border: 1px solid #444; background: none; color: #666; }
+        /* 强制解锁层 */
+        #unlock-view { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .unlock-btn { background: var(--accent); color: #000; border: none; padding: 20px 50px; border-radius: 40px; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 30px var(--accent); }
+
+        .timer { font-family: monospace; font-size: 1.1rem; color: #444; margin-top: 30px; }
+        #train-view { display: none; }
     </style>
 </head>
 <body>
 
-<div class="container" id="home-view">
-    <header style="text-align: center; margin-bottom: 40px;">
-        <h1 style="font-weight: 200; letter-spacing: 5px; margin: 0;">ZENFLOW</h1>
-        <p style="font-size: 0.8rem; opacity: 0.4;">2026 逻辑驱动 · 深度冥想训练</p>
-    </header>
+<!-- 第一步：强制用户点击，解锁浏览器音频锁 -->
+<div id="unlock-view">
+    <div style="margin-bottom: 40px; text-align: center;">
+        <h1 style="font-weight: 200; letter-spacing: 10px;">ZENFLOW</h1>
+        <p style="opacity: 0.5;">2026 纯净逻辑 · 沉浸式冥想</p>
+    </div>
+    <button class="unlock-btn" onclick="initAudioSystem()">激活修行引擎</button>
+    <p style="margin-top: 20px; font-size: 0.7rem; color: #444;">(点击将解锁语音引导并初始化禅音系统)</p>
+</div>
 
-    <div class="mode-list">
-        <div class="mode-card" onclick="startTrain('calm', 180)">
-            <h3>止念训练</h3>
-            <p>3分钟 · 基础呼吸</p>
-        </div>
-        <div class="mode-card" onclick="startTrain('focus', 300)">
-            <h3>专注进阶</h3>
-            <p>5分钟 · 意识锁定</p>
-        </div>
-        <div class="mode-card" onclick="startTrain('deep', 600)">
-            <h3>深度入定</h3>
-            <p>10分钟 · 全身扫描</p>
-        </div>
-        <div class="mode-card" onclick="startTrain('sleep', 900)">
-            <h3>助眠修复</h3>
-            <p>15分钟 · 睡前仪式</p>
-        </div>
+<!-- 主界面 -->
+<div class="container" id="home-view" style="display:none;">
+    <h2 style="font-weight: 200; color: var(--gold);">选择训练模式</h2>
+    <div class="mode-grid">
+        <div class="card" onclick="startTrain('calm', 180)"><b>止念</b><p>3分钟</p></div>
+        <div class="card" onclick="startTrain('focus', 300)"><b>专注</b><p>5分钟</p></div>
+        <div class="card" onclick="startTrain('deep', 600)"><b>入定</b><p>10分钟</p></div>
+        <div class="card" onclick="startTrain('sleep', 900)"><b>助眠</b><p>15分钟</p></div>
     </div>
 </div>
 
-<!-- 训练实操界面 -->
-<div class="training-overlay" id="train-view">
-    <div class="instruction" id="main-cue">准备中</div>
-    <div class="sub-instruction" id="sub-cue">请找个舒适的姿势坐好</div>
+<!-- 训练界面 -->
+<div class="container" id="train-view">
+    <div class="cue-text" id="main-cue">准备中</div>
+    <div class="sub-cue" id="sub-cue">调整坐姿，闭上双眼</div>
 
-    <div class="breath-orb-wrap">
-        <div class="orb-bg"></div>
-        <div class="orb-main" id="orb"></div>
+    <div class="breath-wrap">
+        <div class="glow" id="glow"></div>
+        <div class="orb" id="orb"></div>
     </div>
 
     <div class="timer" id="timer-display">00:00</div>
-    <button class="btn-exit" onclick="exitTrain()">终止练习</button>
+    <button onclick="location.reload()" style="margin-top: 30px; background:none; border:1px solid #222; color:#444; padding:8px 20px; border-radius:15px;">终止练习</button>
 </div>
 
 <script>
-    // 维度 1：训练逻辑矩阵（不再依赖外部音频）
-    const TRAINING_LOGIC = {
-        inhale: { text: "深深吸气", sub: "感受能量流入身体", scale: 2.2, duration: 4000 },
-        hold: { text: "屏息凝神", sub: "稳住这股能量", scale: 2.2, duration: 2000 },
-        exhale: { text: "缓缓呼气", sub: "排除一切杂念", scale: 1.0, duration: 4000 },
-        relax: { text: "全身放松", sub: "感受当下的宁静", scale: 1.0, duration: 2000 }
-    };
-
-    let timer;
-    let secondsLeft;
     let isTraining = false;
+    let secondsLeft = 0;
+    let trainTimer;
+    let audioCtx;
 
-    // 核心：调用浏览器内置语音引擎（TTS）- 解决“不出声”的终极手段
+    // 维度 1：初始化音频系统（解决不出声的杀手锏）
+    function initAudioSystem() {
+        // 1. 创建 Web Audio 上下文 (用于合成禅铃声)
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 2. 预热语音引擎
+        const dummy = new SpeechSynthesisUtterance("准备就绪");
+        dummy.volume = 0; // 静音预播一次，骗过浏览器安全检查
+        window.speechSynthesis.speak(dummy);
+
+        // 3. 切换界面
+        document.getElementById('unlock-view').style.display = 'none';
+        document.getElementById('home-view').style.display = 'flex';
+        
+        console.log("音频引擎已激活");
+    }
+
+    // 维度 2：合成“数字禅铃” (不依赖任何外部音频文件)
+    function playBowlSound() {
+        if(!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime); // 禅铃频率
+        osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 3);
+        
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 3);
+    }
+
+    // 维度 3：增强型语音引擎
     function speak(text) {
-        window.speechSynthesis.cancel(); // 先停止之前的
+        window.speechSynthesis.cancel(); 
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'zh-CN';
-        msg.rate = 0.8; // 慢速，更有禅意
+        msg.rate = 0.8;
+        msg.pitch = 0.9; // 略低沉，更平和
         window.speechSynthesis.speak(msg);
     }
 
-    function startTrain(mode, duration) {
+    const PHASES = {
+        inhale: { text: "吸气", sub: "吸入纯净能量", scale: 2.2, dur: 4000 },
+        hold: { text: "屏息", sub: "感受内在稳定", scale: 2.2, dur: 2000 },
+        exhale: { text: "呼气", sub: "排除烦恼压力", scale: 1.0, dur: 4000 },
+        relax: { text: "放松", sub: "保持觉知", scale: 1.0, dur: 2000 }
+    };
+
+    function startTrain(mode, dur) {
         isTraining = true;
-        secondsLeft = duration;
+        secondsLeft = dur;
         document.getElementById('home-view').style.display = 'none';
         document.getElementById('train-view').style.display = 'flex';
         
+        playBowlSound(); // 开场鸣磬
         runCycle();
         
-        timer = setInterval(() => {
+        trainTimer = setInterval(() => {
             secondsLeft--;
-            updateTimerDisplay();
-            if(secondsLeft <= 0) exitTrain(true);
+            updateTimer();
+            if(secondsLeft <= 0) location.reload();
         }, 1000);
     }
 
     function runCycle() {
         if(!isTraining) return;
-
-        const orb = document.getElementById('orb');
-        const mainCue = document.getElementById('main-cue');
-        const subCue = document.getElementById('sub-cue');
-
-        // 第一步：吸气
-        applyPhase('inhale', () => {
-            // 第二步：屏息
-            applyPhase('hold', () => {
-                // 第三步：呼气
-                applyPhase('exhale', () => {
-                    // 第四步：放松/等待
-                    applyPhase('relax', runCycle);
-                });
-            });
-        });
+        sequence(['inhale', 'hold', 'exhale', 'relax'], runCycle);
     }
 
-    function applyPhase(phaseKey, callback) {
-        if(!isTraining) return;
-        const p = TRAINING_LOGIC[phaseKey];
-        const orb = document.getElementById('orb');
+    function sequence(list, callback) {
+        if(list.length === 0 || !isTraining) { callback(); return; }
         
+        const key = list.shift();
+        const p = PHASES[key];
+        const orb = document.getElementById('orb');
+        const glow = document.getElementById('glow');
+
         document.getElementById('main-cue').innerText = p.text;
         document.getElementById('sub-cue').innerText = p.sub;
+        
         orb.style.transform = `scale(${p.scale})`;
-        orb.style.transition = `transform ${p.duration}ms ease-in-out`;
+        glow.style.opacity = key === 'inhale' ? 0.3 : 0.1;
         
-        speak(p.text); // AI 语音引导
+        speak(p.text); // 执行语音
 
-        setTimeout(callback, p.duration);
+        setTimeout(() => sequence(list, callback), p.dur);
     }
 
-    function updateTimerDisplay() {
-        const m = Math.floor(secondsLeft / 60);
-        const s = secondsLeft % 60;
-        document.getElementById('timer-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-    }
-
-    function exitTrain(isFinished = false) {
-        isTraining = false;
-        clearInterval(timer);
-        window.speechSynthesis.cancel();
-        
-        if(isFinished) {
-            alert("修行圆满，愿你保持这份宁静。");
-        }
-        
-        document.getElementById('home-view').style.display = 'flex';
-        document.getElementById('train-view').style.display = 'none';
-        document.getElementById('orb').style.transform = 'scale(1)';
-    }
-
-    function updateTimerDisplay() {
+    function updateTimer() {
         const m = Math.floor(secondsLeft / 60);
         const s = secondsLeft % 60;
         document.getElementById('timer-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
